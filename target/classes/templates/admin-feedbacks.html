@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Feedbacks - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 0.65rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .top-bar a:hover {
+            color: #667eea;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: white;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+        
+        .stat-info h3 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .feedbacks-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .feedback-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.2s ease;
+        }
+        
+        .feedback-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .feedback-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        
+        .feedback-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 0.2rem;
+            font-size: 1.3rem;
+            color: #ffd700;
+        }
+        
+        .order-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .order-info strong {
+            color: #667eea;
+        }
+        
+        .feedback-message {
+            background: #e7f3ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feedback-message h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .feedback-message p {
+            color: #333;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: #d1e7dd;
+            color: #0f5132;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        .no-feedbacks {
+            padding: 3rem;
+            text-align: center;
+            color: #666;
+        }
+        
+        .no-feedbacks h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .alert-success {
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 2px solid #badbcc;
+        }
+        
+        /* Footer Styles */
+        .footer {
+            background-color: #2c3e50;
+            color: #bbb;
+            padding: 3rem 2rem 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: #bbb;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            line-height: 1.8;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <span>📞 Call Us Now: +1-800-BOOK-NEST</span>
+                <span>✉️ Email Now: support@booknest.com</span>
+            </div>
+            <div class="top-bar-right">
+                <span>Admin Portal</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/admin/dashboard" class="logo">📚 BookNest Admin</a>
+            <div class="nav-links">
+                <a href="/admin/dashboard">🏠 Dashboard</a>
+                <a href="/admin/books">📖 Books</a>
+                <a href="/admin/orders">📦 Orders</a>
+                <a href="/admin/inquiries">💬 Inquiries</a>
+                <a href="/admin/feedbacks">⭐ Feedbacks</a>
+                <a href="/logout">🚪 Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>⭐ Customer Feedbacks</h1>
+            <p style="color: #666;">Manage customer reviews and ratings</p>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successAlert" style="display: none;" class="alert alert-success">
+            Feedback deleted successfully!
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff3cd; color: #856404;">⭐</div>
+                <div class="stat-info">
+                    <h3 th:text="${totalFeedbacks}">0</h3>
+                    <p>Total Feedbacks</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #d1e7dd; color: #0f5132;">✅</div>
+                <div class="stat-info">
+                    <h3 th:text="${verifiedFeedbacks}">0</h3>
+                    <p>Verified Purchases</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e7f3ff; color: #667eea;">📊</div>
+                <div class="stat-info">
+                    <h3 th:text="${averageRating != null ? #numbers.formatDecimal(averageRating, 1, 1) : '0.0'}">0.0</h3>
+                    <p>Average Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedbacks List -->
+        <div class="feedbacks-section">
+            <div class="section-header">
+                Customer Feedbacks
+            </div>
+
+            <div id="feedbacksList">
+                <div th:if="${feedbacks.empty}" class="no-feedbacks">
+                    <h3>📭 No Feedbacks Yet</h3>
+                    <p>Customer feedbacks will appear here</p>
+                </div>
+
+                <div th:each="feedback : ${feedbacks}" class="feedback-item" th:id="'feedback-' + ${feedback.id}">
+                    <div class="feedback-header">
+                        <div class="feedback-meta">
+                            <span>👤 <strong th:text="${feedback.user.username}">User</strong></span>
+                            <span>📅 <span th:text="${#temporals.format(feedback.feedbackDate, 'MMM dd, yyyy HH:mm')}">Date</span></span>
+                            <span>🆔 Feedback #<span th:text="${feedback.id}">1</span></span>
+                        </div>
+                        <button class="btn btn-danger" th:onclick="'deleteFeedback(' + ${feedback.id} + ')'">
+                            🗑️ Delete
+                        </button>
+                    </div>
+
+                    <!-- Star Rating -->
+                    <div class="star-rating" style="margin-bottom: 1rem;">
+                        <span th:each="i : ${#numbers.sequence(1, feedback.rating)}">★</span>
+                        <span th:each="i : ${#numbers.sequence(feedback.rating + 1, 5)}" style="color: #ddd;">★</span>
+                        <span style="margin-left: 0.5rem; color: #666; font-size: 0.9rem;" th:text="${feedback.rating} + '/5'">5/5</span>
+                    </div>
+
+                    <div class="order-info">
+                        📦 <strong>Order #<span th:text="${feedback.order.id}">12345</span></strong> | 
+                        Status: <span th:text="${feedback.order.status}">Delivered</span> | 
+                        Amount: $<span th:text="${#numbers.formatDecimal(feedback.order.totalAmount, 1, 2)}">0.00</span>
+                        <span th:if="${feedback.deliveryConfirmed}" style="margin-left: 1rem;">
+                            <span class="verified-badge">✅ Verified Purchase</span>
+                        </span>
+                    </div>
+
+                    <div class="feedback-message">
+                        <h4>💬 Customer Feedback:</h4>
+                        <p th:text="${feedback.feedbackMessage}">Feedback message</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function deleteFeedback(feedbackId) {
+            if (!confirm('⚠️ Are you sure you want to delete this feedback? This will remove it from the public dashboard as well.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/feedbacks/delete/' + feedbackId, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Show success message
+                    const alert = document.getElementById('successAlert');
+                    alert.style.display = 'block';
+                    
+                    // Remove feedback item from UI
+                    const feedbackItem = document.getElementById('feedback-' + feedbackId);
+                    feedbackItem.style.transition = 'opacity 0.5s';
+                    feedbackItem.style.opacity = '0';
+                    setTimeout(() => {
+                        feedbackItem.remove();
+                        // Check if no feedbacks left
+                        const feedbacksList = document.getElementById('feedbacksList');
+                        if (feedbacksList.querySelectorAll('.feedback-item').length === 0) {
+                            feedbacksList.innerHTML = `
+                                <div class="no-feedbacks">
+                                    <h3>📭 No Feedbacks Yet</h3>
+                                    <p>Customer feedbacks will appear here</p>
+                                </div>
+                            `;
+                        }
+                    }, 500);
+                    
+                    // Reload page after 2 seconds to update stats
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ An error occurred while deleting the feedback');
+                console.error('Error:', error);
+            }
+        }
+    </script>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📚 About BookNest</h3>
+                <p>BookNest is your trusted online bookstore, bringing the joy of reading to your doorstep. We curate an extensive collection of books for every reader, every mood, and every moment.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/admin/dashboard">Admin Dashboard</a>
+                <a href="/admin/orders">Manage Orders</a>
+                <a href="/admin/inquiries">View Inquiries</a>
+            </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <a href="#">Contact Us</a>
+                <a href="#">FAQ</a>
+                <a href="#">Shipping Info</a>
+                <a href="#">Returns Policy</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p>📞 +94773198783</p>
+                <p>✉️ support@booknest.com</p>
+                <p>📍 SLIIT UNI, Kolluptiya Road, Malabe</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookNest Online BookStore. All rights reserved. Designed with ❤️ for book lovers everywhere.</p>
+        </div>
+    </footer>
+</body>
+</html>

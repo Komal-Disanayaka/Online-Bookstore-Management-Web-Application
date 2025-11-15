@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">User Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        
+        /* Top Header Bar */
+        .top-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 0.65rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-bar-left {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .top-bar-left span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .top-bar-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .top-bar a:hover {
+            color: #667eea;
+        }
+        
+        /* Main Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        
+        .search-bar {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 3rem 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .search-bar button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .search-bar button:hover {
+            background: #0052a3;
+        }
+        
+        .nav-actions {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .nav-actions a {
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-actions a:hover {
+            color: #0066cc;
+        }
+        
+        .icon {
+            font-size: 1.3rem;
+        }
+        
+        /* Secondary Navigation */
+        .secondary-nav {
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .secondary-nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .secondary-nav a {
+            color: #333;
+            text-decoration: none;
+            padding: 1rem 0;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .secondary-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: #0066cc;
+            transition: width 0.3s;
+        }
+        
+        .secondary-nav a:hover {
+            color: #0066cc;
+        }
+        
+        .secondary-nav a:hover::after {
+            width: 100%;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s ease;
+        }
+        
+        .nav-links a:hover::before {
+            left: 0;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .nav-links form button {
+            transition: all 0.3s ease;
+            padding: 0.7rem 1.2rem;
+            border-radius: 25px;
+        }
+        
+        .nav-links form button:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            transform: translateY(-2px);
+        }
+        
+        #cartBadge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .welcome-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-card h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .user-info h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-row {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            width: 150px;
+        }
+        
+        .info-value {
+            color: #333;
+            flex: 1;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5568d3;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .books-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .books-section h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+        
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .book-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .book-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            background-color: #f0f0f0;
+        }
+        
+        .book-info h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .book-info .author {
+            color: #666;
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+        
+        .book-price {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .book-info .description {
+            color: #888;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-top: 0.5rem;
+        }
+        
+        /* Footer Styles */
+        .footer {
+            background-color: #2c3e50;
+            color: #bbb;
+            padding: 3rem 2rem 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: #bbb;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            line-height: 1.8;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <span>📞 Call Us Now: +1-800-BOOK-NEST</span>
+                <span>✉️ Email Now: support@booknest.com</span>
+            </div>
+            <div class="top-bar-right">
+                <span>Welcome, <span th:text="${user?.fullName}">User</span>!</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/dashboard" class="logo">📚 BookNest</a>
+            
+            <div class="search-bar">
+                <input type="text" id="mainSearch" placeholder="Search for books, authors, or ISBN...">
+                <button onclick="searchFromNav()">🔍 Search</button>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="/dashboard" title="Home">
+                    <span class="icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="/cart" title="Shopping Cart" style="position: relative;">
+                    <span class="icon">🛒</span>
+                    <span>Cart</span>
+                    <span id="cartBadge" style="position: absolute; top: -5px; right: -10px; background: #ff4444; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; display: none;"></span>
+                </a>
+                <a href="/orders" title="My Orders">
+                    <span class="icon">📦</span>
+                    <span>Orders</span>
+                </a>
+                <a href="/profile" title="Profile">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" title="Logout">
+                        <span class="icon">🚪</span>
+                        <span>Logout</span>
+                    </a>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Secondary Navigation -->
+    <div class="secondary-nav">
+        <div class="secondary-nav-content">
+            <a href="/dashboard">ALL BOOKS</a>
+            <a href="/dashboard?sort=price_asc">BEST DEALS</a>
+            <a href="/dashboard">NEW ARRIVALS</a>
+            <a href="/dashboard">BESTSELLERS</a>
+            <a href="/orders">MY ORDERS</a>
+            <a href="/profile">MY ACCOUNT</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="books-section">
+            <h2>Available Books</h2>
+            
+            <!-- Search and Sort Section -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center;">
+                <input type="text" id="searchInput" placeholder="Search books by name..." 
+                       th:value="${search}"
+                       style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                <select id="sortSelect" th:value="${sort}"
+                        style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                    <option value="">Sort by...</option>
+                    <option value="price_asc" th:selected="${sort == 'price_asc'}">Price: Low to High</option>
+                    <option value="price_desc" th:selected="${sort == 'price_desc'}">Price: High to Low</option>
+                </select>
+                <button onclick="applySearchAndSort()" style="padding: 0.75rem 1.5rem; border-radius: 5px; background-color: #667eea; color: white; border: none; cursor: pointer; font-weight: 500;">Search</button>
+                <button onclick="clearSearchAndSort()" style="padding: 0.75rem 1.5rem; border-radius: 5px; background-color: #6c757d; color: white; border: none; cursor: pointer; font-weight: 500;">Clear</button>
+            </div>
+            
+            <div class="books-grid">
+                <div class="book-card" th:each="book : ${books}">
+                    <img th:src="${book.imagePath != null ? '/' + book.imagePath : '/images/no-image.png'}" 
+                         class="book-image" 
+                         th:alt="${book.bookName}"
+                         onerror="this.src='/images/no-image.png'">
+                    <div class="book-info">
+                        <h3 th:text="${book.bookName}">Book Name</h3>
+                        <p class="author">by <span th:text="${book.authorName}">Author</span></p>
+                        <div class="book-price">LKR <span th:text="${book.price}">0.00</span></div>
+                        <p class="description" th:text="${book.description}">Description</p>
+                        <button class="btn-buy-now" th:onclick="'addToCart(' + ${book.id} + ')'" style="margin-top: 1rem; width: 100%; padding: 0.75rem; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; font-size: 1rem;">
+                            🛒 Buy Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${books == null || books.isEmpty()}" style="text-align: center; padding: 2rem; color: #888;">
+                <p>No books available at the moment. Please check back later!</p>
+            </div>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const username = /*[[${user != null ? user.username : ''}]]*/ '';
+        
+        async function addToCart(bookId) {
+            if (!username) {
+                alert('❌ Please login first');
+                return;
+            }
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('bookId', bookId);
+                
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.message + '\n\n🛒 Go to cart to review your items!');
+                    updateCartBadge();
+                    // Optionally redirect to cart
+                    if (confirm('Would you like to go to cart now?')) {
+                        window.location.href = '/cart';
+                    }
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ Error adding to cart');
+            }
+        }
+        
+        async function updateCartBadge() {
+            try {
+                const response = await fetch('/api/cart?username=' + username);
+                const data = await response.json();
+                if (data.success && data.count > 0) {
+                    document.getElementById('cartBadge').textContent = data.count;
+                    document.getElementById('cartBadge').style.display = 'block';
+                } else {
+                    document.getElementById('cartBadge').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error updating cart badge');
+            }
+        }
+        
+        function applySearchAndSort() {
+            const search = document.getElementById('searchInput').value;
+            const sort = document.getElementById('sortSelect').value;
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (sort) params.append('sort', sort);
+            window.location.href = '/dashboard?' + params.toString();
+        }
+        
+        function clearSearchAndSort() {
+            window.location.href = '/dashboard';
+        }
+        
+        function searchFromNav() {
+            const search = document.getElementById('mainSearch').value;
+            if (search) {
+                window.location.href = '/dashboard?search=' + encodeURIComponent(search);
+            }
+        }
+        
+        // Allow enter key in main search
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainSearch = document.getElementById('mainSearch');
+            if (mainSearch) {
+                mainSearch.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchFromNav();
+                    }
+                });
+            }
+        });
+        
+        // Load cart count on page load
+        updateCartBadge();
+        /*]]>*/
+    </script>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📚 About BookNest</h3>
+                <p>BookNest is your trusted online bookstore, bringing the joy of reading to your doorstep. We curate an extensive collection of books for every reader, every mood, and every moment.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/dashboard">Browse Books</a>
+                <a href="/register">Register</a>
+                <a href="/login">Login</a>
+            </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <a href="#">Contact Us</a>
+                <a href="#">FAQ</a>
+                <a href="#">Shipping Info</a>
+                <a href="#">Returns Policy</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p>📞 +94773198783</p>
+                <p>✉️ support@booknest.com</p>
+                <p>📍 SLIIT UNI, Kolluptiya Road, Malabe</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookNest Online BookStore. All rights reserved. Designed with ❤️ for book lovers everywhere.</p>
+        </div>
+    </footer>
+</body>
+</html>
