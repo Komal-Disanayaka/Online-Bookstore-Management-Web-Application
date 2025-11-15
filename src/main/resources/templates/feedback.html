@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Feedback - BookNest Online BookStore</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .feedback-container {
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .feedback-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .feedback-header h1 {
+            color: #0066cc;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feedback-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .order-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .order-summary h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .order-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .order-item strong {
+            font-weight: 600;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .rating-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 3rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: all 0.2s ease;
+        }
+        
+        .star:hover,
+        .star.active {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+        
+        .rating-text {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 150px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            background: #e7f3ff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 2rem;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .alert-success {
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 2px solid #badbcc;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #842029;
+            border: 2px solid #f5c2c7;
+        }
+        
+        .required {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <span>📚 Welcome to NovelNest - Your Literary Haven</span>
+                <div class="top-bar-right">
+                    <span>📞 Contact: +94 77 319 8783</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/dashboard" class="logo">
+                📖 <span>NovelNest</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="/dashboard">🏠 Home</a></li>
+                <li><a href="/cart">🛒 Cart</a></li>
+                <li><a href="/orders">📦 My Orders</a></li>
+                <li><a href="/profile">👤 Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Secondary Navigation -->
+    <div class="secondary-nav">
+        <div class="container">
+            <a href="/dashboard">Home</a>
+            <span>&gt;</span>
+            <a href="/orders">My Orders</a>
+            <span>&gt;</span>
+            <span>Submit Feedback</span>
+        </div>
+    </div>
+
+    <div class="feedback-container">
+        <div class="feedback-header">
+            <h1>⭐ Submit Your Feedback</h1>
+            <p>We value your opinion! Please share your experience with us.</p>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success">
+            <span th:text="${message}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-error">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="order-summary">
+            <h3>📦 Order Details</h3>
+            <div class="order-grid">
+                <div class="order-item">
+                    🆔 <strong>Order ID:</strong> <span th:text="${order.id}">#12345</span>
+                </div>
+                <div class="order-item">
+                    📅 <strong>Order Date:</strong> <span th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy')}">Jan 15, 2025</span>
+                </div>
+                <div class="order-item">
+                    ✅ <strong>Status:</strong> <span th:text="${order.status}">Delivered</span>
+                </div>
+                <div class="order-item">
+                    💰 <strong>Total:</strong> $<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/feedback}" method="post" id="feedbackForm">
+            <input type="hidden" name="orderId" th:value="${order.id}">
+            
+            <!-- Rating Section -->
+            <div class="form-section">
+                <div class="rating-section">
+                    <h3 style="text-align: center; color: #333;">⭐ Rate Your Experience</h3>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                    </div>
+                    <div class="rating-text" id="ratingText">Click to rate</div>
+                    <input type="hidden" name="rating" id="ratingInput" required>
+                </div>
+            </div>
+
+            <!-- Feedback Message -->
+            <div class="form-section">
+                <h3>💬 Your Feedback</h3>
+                <div class="form-group">
+                    <label for="feedbackMessage">Tell us about your experience <span class="required">*</span></label>
+                    <textarea id="feedbackMessage" name="feedbackMessage" required 
+                              placeholder="Please share your thoughts about the product quality, delivery service, packaging, or any other aspect of your order..."></textarea>
+                </div>
+            </div>
+
+            <!-- Delivery Confirmation -->
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" name="deliveryConfirmed" value="true" required>
+                    <span>✅ I confirm that I have received my order and it is in good condition</span>
+                </label>
+            </div>
+
+            <div class="btn-group">
+                <a th:href="@{/orders}" class="btn btn-secondary">← Back to Orders</a>
+                <button type="submit" class="btn btn-primary">Submit Feedback ✨</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Star rating functionality
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('ratingInput');
+        const ratingText = document.getElementById('ratingText');
+        let selectedRating = 0;
+
+        const ratingTexts = {
+            1: '⭐ Poor - Not satisfied',
+            2: '⭐⭐ Fair - Below expectations',
+            3: '⭐⭐⭐ Good - Satisfied',
+            4: '⭐⭐⭐⭐ Very Good - Highly satisfied',
+            5: '⭐⭐⭐⭐⭐ Excellent - Exceeded expectations'
+        };
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                ratingInput.value = selectedRating;
+                updateStars();
+                ratingText.textContent = ratingTexts[selectedRating];
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = parseInt(this.dataset.rating);
+                highlightStars(hoverRating);
+            });
+        });
+
+        document.getElementById('starRating').addEventListener('mouseleave', function() {
+            updateStars();
+        });
+
+        function highlightStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function updateStars() {
+            highlightStars(selectedRating);
+        }
+
+        // Form validation
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            if (!selectedRating) {
+                e.preventDefault();
+                alert('❌ Please select a rating before submitting');
+                return false;
+            }
+        });
+    </script>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📚 About BookNest</h3>
+                <p>BookNest is your trusted online bookstore, bringing the joy of reading to your doorstep. We curate an extensive collection of books for every reader, every mood, and every moment.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/dashboard">Browse Books</a>
+                <a href="/orders">My Orders</a>
+                <a href="/cart">Shopping Cart</a>
+            </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <a href="#">Contact Us</a>
+                <a href="#">FAQ</a>
+                <a href="#">Shipping Info</a>
+                <a href="#">Returns Policy</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p>📞 +94773198783</p>
+                <p>✉️ support@booknest.com</p>
+                <p>📍 SLIIT UNI, Kolluptiya Road, Malabe</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookNest Online BookStore. All rights reserved. Designed with ❤️ for book lovers everywhere.</p>
+        </div>
+    </footer>
+</body>
+</html>

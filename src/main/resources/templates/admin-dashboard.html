@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 0.65rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-bar-left {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .top-bar-left span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .top-bar-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .top-bar a:hover {
+            color: #667eea;
+        }
+        
+        /* Main Navigation */
+        .navbar {
+            background: white;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::before {
+            width: 80%;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .nav-links form button {
+            transition: all 0.3s ease;
+            padding: 0.7rem 1.2rem;
+            border-radius: 25px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .nav-links form button:hover {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .welcome-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-card h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .users-table {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .users-table h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background-color: #667eea;
+            color: white;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            font-weight: 600;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .badge-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-admin {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-user {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5568d3;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .book-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .book-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            background-color: #f0f0f0;
+        }
+        
+        .book-info h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .book-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .book-price {
+            color: #667eea;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .book-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .book-actions button {
+            flex: 1;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .required {
+            color: red;
+        }
+        
+        /* Footer Styles */
+        .footer {
+            background-color: #2c3e50;
+            color: #bbb;
+            padding: 3rem 2rem 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: #bbb;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            line-height: 1.8;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <span>📞 Call Us Now: +1-800-BOOK-NEST</span>
+                <span>✉️ Email Now: support@booknest.com</span>
+            </div>
+            <div class="top-bar-right">
+                <span>Admin Portal</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">📚 BookNest - Admin Panel</div>
+            <div class="nav-links">
+                <a href="/admin/dashboard">📚 Book Management</a>
+                <a href="/admin/orders">📦 Order Management</a>
+                <a href="/admin/inquiries">💬 Customer Inquiries</a>
+                <a href="/admin/feedbacks">⭐ Customer Feedbacks</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" style="background: none; border: none; color: #333; cursor: pointer; font-size: 1rem; font-weight: 500;">🚪 Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="users-table">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Book Management</h2>
+                <button class="btn btn-success" onclick="openAddBookModal()">+ Add New Book</button>
+            </div>
+            
+            <!-- Search and Sort Section -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center;">
+                <input type="text" id="searchInput" placeholder="Search books by name..." 
+                       th:value="${search}"
+                       style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                <select id="sortSelect" th:value="${sort}"
+                        style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                    <option value="">Sort by...</option>
+                    <option value="price_asc" th:selected="${sort == 'price_asc'}">Price: Low to High</option>
+                    <option value="price_desc" th:selected="${sort == 'price_desc'}">Price: High to Low</option>
+                </select>
+                <button onclick="applySearchAndSort()" class="btn btn-primary">Search</button>
+                <button onclick="clearSearchAndSort()" class="btn" style="background: #6c757d;">Clear</button>
+            </div>
+            
+            <div id="message" class="alert" style="display: none;"></div>
+            
+            <div class="books-grid">
+                <div class="book-card" th:each="book : ${allBooks}">
+                    <img th:src="${book.imagePath != null ? '/' + book.imagePath : '/images/no-image.png'}" 
+                         class="book-image" 
+                         th:alt="${book.bookName}"
+                         onerror="this.src='/images/no-image.png'">
+                    <div class="book-info">
+                        <h3 th:text="${book.bookName}">Book Name</h3>
+                        <p><strong>ID:</strong> <span th:text="${book.bookId}">BOOK001</span></p>
+                        <p><strong>Author:</strong> <span th:text="${book.authorName}">Author</span></p>
+                        <div class="book-price">LKR <span th:text="${book.price}">0.00</span></div>
+                        <p th:text="${book.description}" style="font-size: 0.85rem; color: #888;">Description</p>
+                    </div>
+                    <div class="book-actions">
+                        <button class="btn btn-primary" th:onclick="'openEditBookModal(' + ${book.id} + ')'">Edit</button>
+                        <button class="btn btn-danger" th:onclick="'deleteBook(' + ${book.id} + ')'">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>      
+    </div>
+    
+    <!-- Add Book Modal -->
+    <div id="addBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddBookModal()">&times;</span>
+            <h2 style="color: #667eea; margin-bottom: 1.5rem;">Add New Book</h2>
+            
+            <form id="addBookForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Book ID <span class="required">*</span></label>
+                    <input type="text" id="addBookId" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Book Name <span class="required">*</span></label>
+                    <input type="text" id="addBookName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Price <span class="required">*</span></label>
+                    <input type="number" id="addPrice" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Author Name <span class="required">*</span></label>
+                    <input type="text" id="addAuthorName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="addDescription" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Book Image</label>
+                    <input type="file" id="addImage" accept="image/*">
+                </div>
+                
+                <button type="submit" class="btn btn-success" style="width: 100%;">Add Book</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit Book Modal -->
+    <div id="editBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditBookModal()">&times;</span>
+            <h2 style="color: #667eea; margin-bottom: 1.5rem;">Edit Book</h2>
+            
+            <form id="editBookForm" enctype="multipart/form-data">
+                <input type="hidden" id="editBookDbId">
+                
+                <div class="form-group">
+                    <label>Book ID (Cannot be changed)</label>
+                    <input type="text" id="editBookId" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label>Book Name (Cannot be changed)</label>
+                    <input type="text" id="editBookName" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label>Price <span class="required">*</span></label>
+                    <input type="number" id="editPrice" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Author Name <span class="required">*</span></label>
+                    <input type="text" id="editAuthorName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="editDescription" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Update Book Image (Leave empty to keep current)</label>
+                    <input type="file" id="editImage" accept="image/*">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Update Book</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openAddBookModal() { document.getElementById('addBookModal').style.display = 'block'; }
+        function closeAddBookModal() { document.getElementById('addBookModal').style.display = 'none'; document.getElementById('addBookForm').reset(); }
+        
+        function openEditBookModal(bookId) {
+            fetch(`/api/books/${bookId}`).then(response => response.json()).then(data => {
+                if (data.success) {
+                    const book = data.book;
+                    document.getElementById('editBookDbId').value = book.id;
+                    document.getElementById('editBookId').value = book.bookId;
+                    document.getElementById('editBookName').value = book.bookName;
+                    document.getElementById('editPrice').value = book.price;
+                    document.getElementById('editAuthorName').value = book.authorName;
+                    document.getElementById('editDescription').value = book.description || '';
+                    document.getElementById('editBookModal').style.display = 'block';
+                }
+            });
+        }
+        function closeEditBookModal() { document.getElementById('editBookModal').style.display = 'none'; document.getElementById('editBookForm').reset(); }
+        
+        document.getElementById('addBookForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('bookId', document.getElementById('addBookId').value);
+            formData.append('bookName', document.getElementById('addBookName').value);
+            formData.append('price', document.getElementById('addPrice').value);
+            formData.append('authorName', document.getElementById('addAuthorName').value);
+            formData.append('description', document.getElementById('addDescription').value);
+            const imageFile = document.getElementById('addImage').files[0];
+            if (imageFile) formData.append('image', imageFile);
+            
+            try {
+                const response = await fetch('/api/books', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.success) { showMessage(data.message, 'success'); closeAddBookModal(); setTimeout(() => location.reload(), 1500); }
+                else { showMessage(data.message, 'error'); }
+            } catch (error) { showMessage('An error occurred.', 'error'); }
+        });
+        
+        document.getElementById('editBookForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const bookId = document.getElementById('editBookDbId').value;
+            const formData = new FormData();
+            formData.append('price', document.getElementById('editPrice').value);
+            formData.append('authorName', document.getElementById('editAuthorName').value);
+            formData.append('description', document.getElementById('editDescription').value);
+            const imageFile = document.getElementById('editImage').files[0];
+            if (imageFile) formData.append('image', imageFile);
+            
+            try {
+                const response = await fetch(`/api/books/${bookId}`, { method: 'PUT', body: formData });
+                const data = await response.json();
+                if (data.success) { showMessage(data.message, 'success'); closeEditBookModal(); setTimeout(() => location.reload(), 1500); }
+                else { showMessage(data.message, 'error'); }
+            } catch (error) { showMessage('An error occurred.', 'error'); }
+        });
+        
+        async function deleteBook(bookId) {
+            if (confirm('Are you sure you want to delete this book?')) {
+                try {
+                    const response = await fetch(`/api/books/${bookId}`, { method: 'DELETE' });
+                    const data = await response.json();
+                    if (data.success) { showMessage(data.message, 'success'); setTimeout(() => location.reload(), 1500); }
+                    else { showMessage(data.message, 'error'); }
+                } catch (error) { showMessage('An error occurred.', 'error'); }
+            }
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = 'alert alert-' + type;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
+        }
+        
+        function applySearchAndSort() {
+            const search = document.getElementById('searchInput').value;
+            const sort = document.getElementById('sortSelect').value;
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (sort) params.append('sort', sort);
+            window.location.href = '/admin/dashboard?' + params.toString();
+        }
+        
+        function clearSearchAndSort() {
+            window.location.href = '/admin/dashboard';
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('addBookModal')) closeAddBookModal();
+            if (event.target == document.getElementById('editBookModal')) closeEditBookModal();
+        }
+    </script>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📚 About BookNest</h3>
+                <p>BookNest is your trusted online bookstore, bringing the joy of reading to your doorstep. We curate an extensive collection of books for every reader, every mood, and every moment.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/admin/dashboard">Admin Dashboard</a>
+                <a href="/admin/orders">Manage Orders</a>
+                <a href="/admin/inquiries">View Inquiries</a>
+            </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <a href="#">Contact Us</a>
+                <a href="#">FAQ</a>
+                <a href="#">Shipping Info</a>
+                <a href="#">Returns Policy</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p>📞 +94773198783</p>
+                <p>✉️ support@booknest.com</p>
+                <p>📍 SLIIT UNI, Kolluptiya Road, Malabe</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookNest Online BookStore. All rights reserved. Designed with ❤️ for book lovers everywhere.</p>
+        </div>
+    </footer>
+</body>
+</html>

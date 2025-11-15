@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Inquiry - BookNest Online BookStore</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .inquiry-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .inquiry-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #0066cc;
+        }
+        
+        .order-summary {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #0066cc;
+        }
+        
+        .order-summary h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .order-info {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 200px;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-success {
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <span>📚 Welcome to NovelNest - Your Literary Haven</span>
+                <div class="top-bar-right">
+                    <span>📞 Contact: +94 77 319 8783</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/dashboard" class="logo">
+                📖 <span>NovelNest</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="/dashboard">🏠 Home</a></li>
+                <li><a href="/cart">🛒 Cart</a></li>
+                <li><a href="/orders">📦 My Orders</a></li>
+                <li><a href="/profile">👤 Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Secondary Navigation -->
+    <div class="secondary-nav">
+        <div class="container">
+            <a href="/dashboard">Home</a>
+            <span>&gt;</span>
+            <a href="/orders">My Orders</a>
+            <span>&gt;</span>
+            <span>Send Inquiry</span>
+        </div>
+    </div>
+
+    <div class="inquiry-container">
+        <div class="inquiry-header">
+            <h1>💬 Send Inquiry</h1>
+            <p>Have a question about your order? We're here to help!</p>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success">
+            <span th:text="${message}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-error">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="order-summary">
+            <h3>Order Details</h3>
+            <div class="order-info">
+                <span class="info-label">Order ID:</span>
+                <span class="info-value" th:text="${order.id}">#12345</span>
+            </div>
+            <div class="order-info">
+                <span class="info-label">Order Date:</span>
+                <span class="info-value" th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy HH:mm')}" >Jan 15, 2025 10:30</span>
+            </div>
+            <div class="order-info">
+                <span class="info-label">Status:</span>
+                <span class="info-value" th:text="${order.status}">Order Processing</span>
+            </div>
+            <div class="order-info">
+                <span class="info-label">Total Amount:</span>
+                <span class="info-value">$<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></span>
+            </div>
+        </div>
+
+        <!-- Previous Inquiries Section -->
+        <div th:if="${previousInquiries != null && !previousInquiries.empty}" style="margin-top: 2rem;">
+            <h2 style="color: #333; margin-bottom: 1rem; font-size: 1.5rem;">📜 Previous Inquiries</h2>
+            
+            <div th:each="inquiry : ${previousInquiries}" style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="font-size: 0.9rem; color: #666;">
+                        <span>📅 <span th:text="${#temporals.format(inquiry.inquiryDate, 'MMM dd, yyyy HH:mm')}">Date</span></span>
+                    </div>
+                    <span style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;"
+                          th:classappend="${inquiry.status == 'Pending' ? 'background: #fff3cd; color: #856404;' : 'background: #d1e7dd; color: #0f5132;'}"
+                          th:text="${inquiry.status}">Status</span>
+                </div>
+                
+                <div style="background: #e7f3ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #0066cc;">
+                    <h4 style="color: #0066cc; margin-bottom: 0.5rem; font-size: 0.95rem;">💬 Your Message:</h4>
+                    <p th:text="${inquiry.inquiryMessage}" style="color: #333; margin: 0;">Inquiry message</p>
+                </div>
+                
+                <div th:if="${inquiry.status == 'Replied' && inquiry.adminReply != null}" 
+                     style="background: #f1f8f4; padding: 1rem; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h4 style="color: #28a745; margin-bottom: 0.5rem; font-size: 0.95rem;">✅ Admin Reply:</h4>
+                    <p th:text="${inquiry.adminReply}" style="color: #333; margin: 0 0 0.5rem 0;">Admin reply</p>
+                    <small style="color: #666;">Replied on: <span th:text="${#temporals.format(inquiry.replyDate, 'MMM dd, yyyy HH:mm')}">Date</span></small>
+                </div>
+                
+                <div th:if="${inquiry.status == 'Pending'}" style="background: #fff3cd; padding: 0.75rem; border-radius: 8px; text-align: center; color: #856404;">
+                    ⏳ Waiting for admin response...
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/inquiry}" method="post">
+            <input type="hidden" name="orderId" th:value="${order.id}">
+            
+            <div class="form-group">
+                <label for="inquiryMessage">Your Inquiry: *</label>
+                <textarea id="inquiryMessage" name="inquiryMessage" required 
+                          placeholder="Please describe your question or concern about this order in detail..."></textarea>
+            </div>
+
+            <div class="btn-group">
+                <a th:href="@{/orders}" class="btn btn-secondary">← Back to Orders</a>
+                <button type="submit" class="btn btn-primary">Send Inquiry 📨</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Auto-dismiss success message after 5 seconds
+        const successAlert = document.querySelector('.alert-success');
+        if (successAlert) {
+            setTimeout(() => {
+                successAlert.style.transition = 'opacity 0.5s';
+                successAlert.style.opacity = '0';
+                setTimeout(() => successAlert.remove(), 500);
+            }, 5000);
+        }
+    </script>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📚 About BookNest</h3>
+                <p>BookNest is your trusted online bookstore, bringing the joy of reading to your doorstep. We curate an extensive collection of books for every reader, every mood, and every moment.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/dashboard">Browse Books</a>
+                <a href="/orders">My Orders</a>
+                <a href="/cart">Shopping Cart</a>
+            </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <a href="#">Contact Us</a>
+                <a href="#">FAQ</a>
+                <a href="#">Shipping Info</a>
+                <a href="#">Returns Policy</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p>📞 +94773198783</p>
+                <p>✉️ support@booknest.com</p>
+                <p>📍 SLIIT UNI, Kolluptiya Road, Malabe</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookNest Online BookStore. All rights reserved. Designed with ❤️ for book lovers everywhere.</p>
+        </div>
+    </footer>
+</body>
+</html>

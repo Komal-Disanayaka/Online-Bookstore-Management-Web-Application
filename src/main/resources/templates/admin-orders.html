@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Order Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        
+        /* Top Header Bar */
+        .top-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 0.65rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-bar-left {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .top-bar-left span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .top-bar-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .top-bar a:hover {
+            color: #667eea;
+        }
+        
+        /* Main Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        
+        .nav-actions {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .nav-actions a {
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-actions a:hover {
+            color: #0066cc;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: #0066cc;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0066cc;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .order-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #0066cc;
+        }
+        
+        .order-header {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .order-id {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .customer-name {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .order-date {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .status-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .status-select:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-processing {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-ontheway {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        
+        .status-delivered {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .detail-box {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .order-items {
+            margin-top: 1rem;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+        
+        .order-items h3 {
+            color: #333;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .item-quantity {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .item-price {
+            color: #0066cc;
+            font-weight: 600;
+        }
+        
+        .order-total {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #0066cc;
+            text-align: right;
+        }
+        
+        .total-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0066cc;
+        }
+        
+        .no-orders {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .no-orders h2 {
+            color: #666;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Footer Styles */
+        .footer {
+            background-color: #2c3e50;
+            color: #bbb;
+            padding: 3rem 2rem 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: #bbb;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            line-height: 1.8;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <span>📞 Admin Support: 1-800-ADMIN</span>
+                <span>📧 admin@novelnest.com</span>
+            </div>
+            <div class="top-bar-right">
+                <span>Admin: <span th:text="${user?.fullName}">Admin</span></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/admin/dashboard" class="logo">📚 NovelNest Admin</a>
+            
+            <div class="nav-actions">
+                <a href="/admin/dashboard">📚 Books</a>
+                <a href="/admin/orders">📦 Orders</a>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();">🚪 Logout</a>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Order Management</h1>
+            <p>Manage and track all customer orders</p>
+        </div>
+        
+        <div id="message" class="alert"></div>
+        
+        <div th:if="${orders != null && !orders.isEmpty()}">
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${orders.size()}">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${#lists.size(orders.?[status == 'Order Processing'])}">0</div>
+                    <div class="stat-label">Processing</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${#lists.size(orders.?[status == 'On the Way'])}">0</div>
+                    <div class="stat-label">On the Way</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${#lists.size(orders.?[status == 'Delivered'])}">0</div>
+                    <div class="stat-label">Delivered</div>
+                </div>
+            </div>
+            
+            <!-- Orders List -->
+            <div class="order-card" th:each="order : ${orders}">
+                <div class="order-header">
+                    <div class="order-info">
+                        <div class="order-id">Order #<span th:text="${order.id}">12345</span></div>
+                        <div class="customer-name">Customer: <span th:text="${order.user.fullName}">Customer Name</span></div>
+                        <div class="order-date">
+                            Placed on <span th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy HH:mm')}">Date</span>
+                        </div>
+                    </div>
+                    <div>
+                        <select class="status-select" th:data-order-id="${order.id}" onchange="updateOrderStatus(this)">
+                            <option value="Order Processing" th:selected="${order.status == 'Order Processing'}">Order Processing</option>
+                            <option value="On the Way" th:selected="${order.status == 'On the Way'}">On the Way</option>
+                            <option value="Delivered" th:selected="${order.status == 'Delivered'}">Delivered</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="status-badge" 
+                              th:classappend="${order.status == 'Order Processing' ? 'status-processing' : (order.status == 'On the Way' ? 'status-ontheway' : 'status-delivered')}"
+                              th:text="${order.status}">Status</span>
+                    </div>
+                </div>
+                
+                <div class="order-details">
+                    <div class="detail-box">
+                        <div class="detail-label">Delivery Address</div>
+                        <div class="detail-value">
+                            <span th:text="${order.deliveryAddress}">Address</span><br>
+                            <span th:text="${order.deliveryCity}">City</span>, <span th:text="${order.deliveryPostalCode}">Postal Code</span>
+                        </div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">Contact</div>
+                        <div class="detail-value">
+                            <div>📞 <span th:text="${order.deliveryPhone}">Phone</span></div>
+                            <div>📧 <span th:text="${order.user.email}">Email</span></div>
+                        </div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">Payment</div>
+                        <div class="detail-value">
+                            Card: <span th:text="${order.cardNumber}">****</span><br>
+                            <span th:text="${order.cardHolderName}">Holder Name</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-items">
+                    <h3>Order Items</h3>
+                    <div class="order-item" th:each="item : ${order.orderItems}">
+                        <div class="item-info">
+                            <div class="item-name" th:text="${item.book.bookName}">Book Name</div>
+                            <div class="item-quantity">
+                                Quantity: <span th:text="${item.quantity}">1</span> × 
+                                LKR <span th:text="${#numbers.formatDecimal(item.price, 1, 2)}">0.00</span>
+                            </div>
+                        </div>
+                        <div class="item-price">$<span th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)}">0.00</span></div>
+                    </div>
+                    
+                    <div class="order-total">
+                        <span class="total-label">Total Amount: </span>
+                        <span class="total-amount">$<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></span>
+                    </div>
+                </div>
+                
+                <!-- Customer Inquiries Section -->
+                <div th:id="'inquiries-' + ${order.id}" class="inquiries-section" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+        
+        <div th:if="${orders == null || orders.isEmpty()}" class="no-orders">
+            <h2>📭 No Orders Yet</h2>
+            <p>No customer orders have been placed yet.</p>
+        </div>
+    </div>
+    
+    <script>
+        async function updateOrderStatus(selectElement) {
+            const orderId = selectElement.getAttribute('data-order-id');
+            const newStatus = selectElement.value;
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}/status?status=${encodeURIComponent(newStatus)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                
+                const data = await response.json();
+                const messageDiv = document.getElementById('message');
+                
+                if (data.success) {
+                    messageDiv.className = 'alert alert-success';
+                    messageDiv.textContent = '✅ ' + data.message;
+                    messageDiv.style.display = 'block';
+                    
+                    // Reload page after short delay to show updated status
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    messageDiv.className = 'alert alert-error';
+                    messageDiv.textContent = '❌ ' + data.message;
+                    messageDiv.style.display = 'block';
+                }
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            } catch (error) {
+                const messageDiv = document.getElementById('message');
+                messageDiv.className = 'alert alert-error';
+                messageDiv.textContent = '❌ An error occurred while updating order status.';
+                messageDiv.style.display = 'block';
+            }
+        }
+        
+        // Inquiry Management Functions
+        async function loadInquiries(orderId) {
+            try {
+                const response = await fetch('/api/inquiries/order/' + orderId);
+                const data = await response.json();
+                
+                if (data.success && data.inquiries.length > 0) {
+                    const inquiriesDiv = document.getElementById('inquiries-' + orderId);
+                    let html = '<div style="background: #fff3cd; padding: 1rem; border-radius: 5px; margin-top: 1rem;"><h4 style="margin-bottom: 0.75rem; color: #856404;">📨 Customer Inquiries:</h4>';
+                    
+                    data.inquiries.forEach(inquiry => {
+                        const date = new Date(inquiry.inquiryDate).toLocaleString();
+                        const statusClass = inquiry.status === 'Pending' ? 'badge-pending' : 'badge-replied';
+                        
+                        html += `
+                            <div style="background: white; padding: 1rem; border-radius: 5px; margin-bottom: 0.75rem; border-left: 4px solid #ff9800;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="color: #666; font-size: 0.85rem;">📅 ${date}</span>
+                                    <span class="inquiry-badge ${statusClass}" style="padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">
+                                        ${inquiry.status}
+                                    </span>
+                                </div>
+                                <div style="color: #333; margin-bottom: 0.5rem;">
+                                    <strong>Customer Inquiry:</strong><br>
+                                    ${inquiry.inquiryMessage}
+                                </div>
+                                ${inquiry.adminReply ? `
+                                    <div style="background: #d1e7dd; padding: 0.75rem; border-radius: 5px; margin-top: 0.75rem; border-left: 3px solid #0f5132;">
+                                        <div style="font-weight: 600; color: #0f5132; margin-bottom: 0.5rem;">✅ Your Reply:</div>
+                                        ${inquiry.adminReply}
+                                    </div>
+                                ` : `
+                                    <button onclick="openReplyModal(${inquiry.id}, '${inquiry.inquiryMessage.replace(/'/g, "\\'")}')" 
+                                            style="margin-top: 0.75rem; padding: 0.5rem 1rem; background: #0066cc; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                                        💬 Reply to Customer
+                                    </button>
+                                `}
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    inquiriesDiv.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading inquiries:', error);
+            }
+        }
+        
+        function openReplyModal(inquiryId, inquiryMessage) {
+            document.getElementById('replyInquiryId').value = inquiryId;
+            document.getElementById('originalInquiry').textContent = inquiryMessage;
+            document.getElementById('replyModal').style.display = 'block';
+        }
+        
+        function closeReplyModal() {
+            document.getElementById('replyModal').style.display = 'none';
+            document.getElementById('replyForm').reset();
+        }
+        
+        document.getElementById('replyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const inquiryId = document.getElementById('replyInquiryId').value;
+            const adminReply = document.getElementById('adminReply').value;
+            
+            const formData = new URLSearchParams();
+            formData.append('adminReply', adminReply);
+            
+            try {
+                const response = await fetch('/api/inquiries/' + inquiryId + '/reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                const messageDiv = document.getElementById('message');
+                
+                if (data.success) {
+                    messageDiv.className = 'alert alert-success';
+                    messageDiv.textContent = '✅ ' + data.message;
+                    messageDiv.style.display = 'block';
+                    closeReplyModal();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    messageDiv.className = 'alert alert-error';
+                    messageDiv.textContent = '❌ ' + data.message;
+                    messageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                const messageDiv = document.getElementById('message');
+                messageDiv.className = 'alert alert-error';
+                messageDiv.textContent = '❌ An error occurred while sending reply.';
+                messageDiv.style.display = 'block';
+            }
+        });
+        
+        // Load inquiries for all orders on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderElements = document.querySelectorAll('[data-order-id]');
+            orderElements.forEach(element => {
+                const orderId = element.getAttribute('data-order-id');
+                loadInquiries(orderId);
+            });
+        });
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('replyModal');
+            if (event.target == modal) {
+                closeReplyModal();
+            }
+        }
+    </script>
+    
+    <!-- Reply Modal -->
+    <div id="replyModal" style="display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div style="max-width: 600px; margin: 5% auto; background: white; padding: 2rem; border-radius: 10px; position: relative;">
+            <span onclick="closeReplyModal()" style="position: absolute; right: 1rem; top: 1rem; font-size: 2rem; cursor: pointer; color: #999;">&times;</span>
+            <h2 style="color: #0066cc; margin-bottom: 1rem;">Reply to Customer Inquiry</h2>
+            <form id="replyForm">
+                <input type="hidden" id="replyInquiryId">
+                <div style="margin-bottom: 1.5rem; background: #f8f9fa; padding: 1rem; border-radius: 5px; border-left: 4px solid #ff9800;">
+                    <strong style="color: #666;">Customer's Inquiry:</strong><br>
+                    <p id="originalInquiry" style="margin-top: 0.5rem; color: #333;"></p>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555;">Your Reply:</label>
+                    <textarea id="adminReply" rows="6" required 
+                              style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 5px; font-family: inherit; font-size: 1rem;" 
+                              placeholder="Type your reply to the customer..."></textarea>
+                </div>
+                <button type="submit" style="width: 100%; padding: 1rem; background: #0066cc; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                    Send Reply 📨
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <style>
+        .inquiry-badge.badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .inquiry-badge.badge-replied {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+    </style>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>📚 About BookNest</h3>
+                <p>BookNest is your trusted online bookstore, bringing the joy of reading to your doorstep. We curate an extensive collection of books for every reader, every mood, and every moment.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/admin/dashboard">Admin Dashboard</a>
+                <a href="/admin/orders">Manage Orders</a>
+                <a href="/admin/inquiries">View Inquiries</a>
+            </div>
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <a href="#">Contact Us</a>
+                <a href="#">FAQ</a>
+                <a href="#">Shipping Info</a>
+                <a href="#">Returns Policy</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <p>📞 +94773198783</p>
+                <p>✉️ support@booknest.com</p>
+                <p>📍 SLIIT UNI, Kolluptiya Road, Malabe</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 BookNest Online BookStore. All rights reserved. Designed with ❤️ for book lovers everywhere.</p>
+        </div>
+    </footer>
+</body>
+</html>
