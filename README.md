@@ -49,7 +49,7 @@ BookNest Online BookStore is a Spring Boot web application using Thymeleaf templ
 
 ## Prerequisites
 
-- Java 21 (JDK)
+- Java (JDK)
 - Maven 3.6+
 - MySQL (or another compatible JDBC database) for production usage. You can run with an embedded DB for quick tests if you configure it accordingly.
 
@@ -170,5 +170,6 @@ If you want to contribute:
 ## License
 
 This project is licensed under the MIT License.
+
 
 
